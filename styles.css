@@ -1,0 +1,307 @@
+
+:root {
+  --bg-color: #141414;
+  --primary-color: #320064;
+  --secondary-color: #230046;
+  --text-color: #e0e0e0;
+  --nav-bg-color: #2c2c3e;
+  --button-hover: #b87de0;
+  --light: #282828;
+  --black: #000000;
+  --violet: #8B5CF6;
+  --jade-green: #22C55E;
+  --jungle: #16A34A;
+  --strawberry: #EF4444;
+  --scarlet: #DC2626;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* =======================
+   BASE
+======================= */
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+h1, h2, h3, h4, h5 {
+  margin: 2px 2px 8px 2px;
+}
+
+p {
+  margin: 2px;
+}
+
+/* =======================
+   NAV
+======================= */
+nav {
+  display: flex;
+}
+
+nav button {
+  flex: 1;
+  padding: 5px 0;
+  cursor: pointer;
+  margin: 0;
+  background: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--light);
+}
+
+nav button:hover {
+  background: var(--violet);
+  border: none;
+}
+
+/* =======================
+   FORM
+======================= */
+.gym-form {
+  width: clamp(320px, 90vw, 600px);
+
+  margin: 28px auto;
+  border: 2px solid var(--light);
+  box-shadow: 5px 5px 0px var(--light);
+  padding: 48px 72px;
+}
+
+.gym-form input,
+.gym-form select {
+  background: var(--light);
+  border: none;
+  padding: 4px;
+  color: white;
+  flex: 1;
+  min-width: 0;
+  margin-top: 3px;
+}
+
+.gym-form label {
+  display: block;
+  margin: 2px 0;
+  color: white;
+}
+
+
+.input-row input, .input-row select {
+  display: flex;
+  height: 32px;
+  width: 100%;
+}
+
+.gym-form .buttons {
+  margin: 8px 0;
+}
+
+.gym-form .exercises {
+
+}
+
+.gym-form .exercise {
+  padding: 12px 0px;
+}
+
+.exercise-select-div {
+  display: flex;
+}
+
+.exercise button {
+  width: 100%;
+}
+
+.sets {
+  width: 100%;
+}
+
+.set {
+  display: flex;
+  gap: 18px;
+  margin: 5px 0;
+  width: 100%;
+}
+
+.set label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.set label input {
+  flex: 1;
+  width: 100%;
+}
+
+.exercise-number {
+  background: var(--violet);
+  color: white;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.submit-btn-container {
+  text-align: right;
+}
+
+#muscles {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+/* =======================
+   LISTS / CARDS
+======================= */
+.gym-list {
+  margin: 24px 6px;
+}
+
+.muscle-card,
+.exercise-card,
+.workout-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  transition: background 0.2s;
+}
+
+.muscle-card:hover,
+.exercise-card:hover,
+.workout-card:hover {
+  background: var(--light);
+}
+
+.exercise-muscle-list {
+  display: flex;
+}
+
+.edit-only {
+  margin-top: 18px;
+}
+
+.muscle-row {
+  display: flex;
+}
+
+.muscle-row span {
+  flex: 1;
+}
+
+
+.exercise-muscle-list.editing {
+  display: block;
+}
+
+.exercise-muscle-list:not(.editing)
+  .muscle-row:not(:last-child)::after {
+  content: " • ";
+  margin: 0 5px;
+}
+
+.workout-card .sets {
+  margin-left: 12px;
+}
+
+.edit-select {
+  background: var(--light);
+  border: none;
+  padding: 4px;
+  color: white;
+  flex: 1;
+  min-width: 0;
+  margin-top: 3px;
+  margin-right: 12px;
+  height: 32px;
+}
+
+/* =======================
+   BUTTONS
+======================= */
+.gym-content .buttons {
+  display: flex;
+  gap: 8px;
+  transition: opacity 0.2s;
+}
+
+.gym-content [class*="-card"] .buttons {
+  opacity: 0;
+}
+
+.muscle-card:hover .buttons, .exercise-card:hover .buttons, .workout-card:hover .buttons {
+  opacity: 1;
+}
+
+.gym-content button {
+  border: none;
+  padding: 4px 6px;
+}
+
+.gym-content .submit-btn {
+  background-color: transparent;
+  color: var(--jungle);
+  border: 1px solid var(--jungle);
+}
+
+.gym-content .submit-btn:hover {
+  background-color: var(--jungle);
+  color: white;
+}
+
+.gym-content .edit-btn,
+.gym-content .add-btn {
+  background: transparent;
+  color: var(--violet);
+  border: 1px solid var(--violet);
+}
+
+.gym-content .edit-btn:hover,
+.gym-content .add-btn:hover {
+  background: var(--violet);
+  color: white;
+}
+
+.gym-content .delete-btn {
+  background: transparent;
+  border: 1px solid var(--scarlet);
+  color: var(--scarlet);
+}
+
+.gym-content .delete-btn:hover {
+  background: var(--scarlet);
+  color: white;
+}
+
+.gym-content .remove-btn {
+  background: transparent;
+  border: 1px solid var(--strawberry);
+  color: var(--strawberry);
+}
+
+.gym-content .remove-btn:hover {
+  background: var(--strawberry);
+  color: white;
+}
+
+.hidden {
+  display: none;
+}
+
+.exercise-muscle-list.editing .remove-muscle {
+  display: inline-block;
+}

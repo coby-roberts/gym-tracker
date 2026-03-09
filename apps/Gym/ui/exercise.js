@@ -1,10 +1,43 @@
 //
 // gym:addExercise
 //
+
+import { showError, clearError } from "./error-banner.js";
+
 export function initExerciseUI() {
   attachMuscleHandlers();
   attachAddExerciseForm();
   populateExercises();
+  populateMuscles();
+}
+
+//=========================================
+//      Form Logic
+//=========================================
+
+let formSubmitHandler = null;
+
+function attachMuscleHandlers() {
+  const addMuscleBtn = document.getElementById("add-muscle");
+  const removeMuscleBtn = document.getElementById("remove-muscle");
+  const createMuscleBtn = document.getElementById("create-muscle");
+
+  if (addMuscleBtn) {
+    addMuscleBtn.addEventListener("click", addMuscle);
+  }
+
+  if (removeMuscleBtn) {
+    removeMuscleBtn.addEventListener("click", removeMuscle);
+  }
+
+  if (createMuscleBtn) {
+    createMuscleBtn.addEventListener("click", createMuscle);
+  }
+}
+
+function getMuscleCount() {
+  const count = document.getElementById("muscles");
+  return count.childElementCount;
 }
 
 // populate the select with muscles
@@ -18,7 +51,7 @@ async function populateMuscleSelect(select) {
   select.appendChild(placeholder);
 
   const muscles = await window.gym.getMuscles();
-  muscles.forEach(muscle => {
+  muscles.forEach((muscle) => {
     const option = document.createElement("option");
     option.value = muscle.id;
     option.textContent = muscle.name;
@@ -26,32 +59,8 @@ async function populateMuscleSelect(select) {
   });
 }
 
-//=========================================
-//      Form Logic
-//=========================================
-
-let formSubmitHandler = null;
-
-function attachMuscleHandlers() {
-  const addMuscleBtn = document.getElementById("add-muscle");
-  const removeMuscleBtn = document.getElementById("remove-muscle");
-
-  if (addMuscleBtn) {
-    addMuscleBtn.addEventListener("click", addMuscle);
-  }
-
-  if (removeMuscleBtn) {
-    removeMuscleBtn.addEventListener("click", removeMuscle);
-  }
-}
-
-function getMuscleCount() {
-  const count = document.getElementById("muscles");
-  return count.childElementCount;
-}
-
 async function addMuscle() {
-  const muscleCount = getMuscleCount()++;
+  const muscleCount = getMuscleCount() + 1;
 
   const musclesDiv = document.getElementById("muscles");
 
@@ -75,6 +84,27 @@ async function addMuscle() {
   populateMuscleSelect(muscleSelect);
 }
 
+function createMuscle() {
+  const muscleCount = getMuscleCount() + 1;
+
+  const container = document.getElementById("muscles");
+
+  const span = document.createElement("span");
+  span.className = "input-row";
+
+  const label = document.createElement("label");
+  label.innerText = `Muscle ${muscleCount}`;
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.name = "created-muscles[]";
+  input.placeholder = "Create Muscle";
+
+  label.appendChild(input);
+  span.appendChild(label);
+  container.appendChild(span);
+}
+
 function removeMuscle() {
   const muscleCount = getMuscleCount();
   if (muscleCount === 0) return;
@@ -89,11 +119,31 @@ function attachAddExerciseForm() {
 
   formSubmitHandler = async (e) => {
     e.preventDefault();
+    clearError();
+
     const formData = new FormData(form);
     const exerciseName = formData.get("exerciseName");
     const muscleIds = formData.getAll("muscles[]");
-    window.gym.addExercise(exerciseName, muscleIds);
-    form.reset();
+    const createdMuscles = formData.getAll("created-muscles[]");
+
+    for (const name of createdMuscles) {
+      const createdMuscle = await window.gym.addMuscle(name);
+      if (createdMuscle.error) {
+        console.error("Failed to create muscle: ", createdMuscle.error);
+        showError(createdMuscle.error);
+        return;
+      }
+      muscleIds.push(createdMuscle.id);
+    }
+
+    const result = await window.gym.addExercise(exerciseName, muscleIds);
+    if (result.error) {
+      console.error("Failed to create exercise: ", result.error);
+      showError(result.error);
+      return;
+    }
+    // form.reset();
+    window.loadPage("./apps/Gym/pages/addExercise.html");
   };
 
   form.addEventListener("submit", formSubmitHandler);
@@ -108,7 +158,7 @@ function getMuscleRows(container) {
 }
 
 function getMuscleIds(container) {
-  return getMuscleRows(container).map(el => Number(el.dataset.id));
+  return getMuscleRows(container).map((el) => Number(el.dataset.id));
 }
 
 function createMuscleRow(muscle) {
@@ -133,7 +183,7 @@ async function toggleEditMode({
   exerciseNameEl,
   muscleDiv,
   editOnlyDiv,
-  editBtn
+  editBtn,
 }) {
   const editing = editBtn.textContent === "Save";
 
@@ -144,8 +194,8 @@ async function toggleEditMode({
     const original = JSON.parse(muscleDiv.dataset.originalMuscles);
     const current = getMuscleIds(muscleDiv);
 
-    const added = current.filter(id => !original.includes(id));
-    const removed = original.filter(id => !current.includes(id));
+    const added = current.filter((id) => !original.includes(id));
+    const removed = original.filter((id) => !current.includes(id));
 
     for (const id of added) {
       await window.gym.addExerciseMuscle(exerciseId, id);
@@ -158,7 +208,7 @@ async function toggleEditMode({
     if (originalName !== exerciseNameEl.innerText.trim()) {
       await window.gym.updateExercise(
         exerciseNameEl.innerText.trim(),
-        exerciseId
+        exerciseId,
       );
     }
 
@@ -168,9 +218,7 @@ async function toggleEditMode({
     editBtn.textContent = "Edit";
   } else {
     // EDIT
-    muscleDiv.dataset.originalMuscles = JSON.stringify(
-      getMuscleIds(muscleDiv)
-    );
+    muscleDiv.dataset.originalMuscles = JSON.stringify(getMuscleIds(muscleDiv));
 
     muscleDiv.classList.add("editing");
     editOnlyDiv.style.display = "block";
@@ -180,10 +228,8 @@ async function toggleEditMode({
   }
 }
 
-
 // Lists each exercise in the db
 async function populateExercises() {
-
   const container = document.getElementById("db-exercises");
   if (!container) return;
   container.innerHTML = "";
@@ -191,7 +237,6 @@ async function populateExercises() {
   const exercises = await window.gym.getExercisesAndExerciseMuscles();
 
   for (const row of exercises) {
-
     const card = document.createElement("div");
     card.className = "exercise-card";
 
@@ -201,8 +246,8 @@ async function populateExercises() {
     const muscleDiv = document.createElement("div");
     muscleDiv.className = "exercise-muscle-list";
 
-    row.muscles.forEach(muscle =>
-      muscleDiv.appendChild(createMuscleRow(muscle))
+    row.muscles.forEach((muscle) =>
+      muscleDiv.appendChild(createMuscleRow(muscle)),
     );
 
     // edit exercise muscle logic
@@ -230,8 +275,8 @@ async function populateExercises() {
       muscleDiv.appendChild(
         createMuscleRow({
           id,
-          name: addMuscleSelect.selectedOptions[0].text
-        })
+          name: addMuscleSelect.selectedOptions[0].text,
+        }),
       );
     };
 
@@ -241,20 +286,20 @@ async function populateExercises() {
     left.className = "left";
     left.append(exerciseName, muscleDiv, editOnlyDiv);
 
-
     // add edit button
     const editBtn = document.createElement("button");
     editBtn.type = "button";
     editBtn.className = "edit-btn";
     editBtn.innerText = "Edit";
 
-    editBtn.onclick = async () => toggleEditMode({
-      exerciseId: row.id,
-      exerciseNameEl: exerciseName,
-      muscleDiv,
-      editOnlyDiv,
-      editBtn
-    });
+    editBtn.onclick = async () =>
+      toggleEditMode({
+        exerciseId: row.id,
+        exerciseNameEl: exerciseName,
+        muscleDiv,
+        editOnlyDiv,
+        editBtn,
+      });
 
     // add delete button
     const deleteBtn = document.createElement("button");
@@ -263,7 +308,7 @@ async function populateExercises() {
     deleteBtn.innerText = "Delete";
 
     deleteBtn.onclick = async () => {
-      await window.gym.deleteExercise(row.id)
+      await window.gym.deleteExercise(row.id);
       card.remove();
     };
 
@@ -274,4 +319,70 @@ async function populateExercises() {
     card.append(left, buttons);
     container.appendChild(card);
   }
+}
+
+//=========================================
+//      Muscles
+//=========================================
+
+// Populate muscles
+function populateMuscles() {
+  const musclesDiv = document.getElementById("db-muscles"); // div containing muscles stored in the db
+  if (!musclesDiv) return;
+
+  musclesDiv.innerHTML = "";
+
+  window.gym.getMuscles().then((muscles) => {
+    muscles.forEach((muscle) => {
+      const row = document.createElement("div");
+      row.className = "muscle-card";
+
+      const p = document.createElement("p");
+      p.id = muscle.id;
+      p.innerText = muscle.name;
+      p.contentEditable = false;
+
+      // add edit button
+      const editBtn = document.createElement("button");
+      editBtn.type = "button";
+      editBtn.innerText = "Edit";
+      editBtn.className = "edit-btn";
+      editBtn.onclick = async () => {
+        if (p.isContentEditable) {
+          const result = await window.gym.updateMuscle(p.innerText, muscle.id);
+          if (result?.error) {
+            showError(result.error);
+            return;
+          }
+          p.contentEditable = false;
+          editBtn.textContent = "Edit";
+        } else {
+          p.contentEditable = true;
+          p.focus();
+          editBtn.textContent = "Save";
+        }
+      };
+
+      // add delete button
+      const deleteBtn = document.createElement("button");
+      deleteBtn.type = "button";
+      deleteBtn.innerText = "Delete";
+      deleteBtn.className = "delete-btn";
+      deleteBtn.onclick = async () => {
+        const result = await window.gym.deleteMuscle(muscle.id);
+        if (result?.error) {
+          showError(result.error);
+          return;
+        }
+        row.remove();
+      };
+
+      const buttons = document.createElement("div");
+      buttons.className = "buttons";
+
+      buttons.append(deleteBtn, editBtn);
+      row.append(p, buttons);
+      musclesDiv.appendChild(row);
+    });
+  });
 }

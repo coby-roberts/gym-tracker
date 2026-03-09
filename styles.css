@@ -29,6 +29,8 @@
 body {
   background: var(--bg-color);
   color: var(--text-color);
+  min-width: 600px;
+  min-height: 400px;
 }
 
 h1,
@@ -65,6 +67,17 @@ p {
   }
 }
 
+#error-banner {
+  display: none;
+  justify-content: space-between;
+  width: clamp(320px, 90vw, 600px);
+  color: #ff4444;
+  border: 1px solid #ff4444;
+  padding: 8px 12px;
+  margin: 12px auto;
+  border-radius: 4px;
+}
+
 /* =======================
    NAV
 ======================= */
@@ -91,7 +104,6 @@ nav button:hover {
 ======================= */
 .gym-form {
   width: clamp(320px, 90vw, 600px);
-
   margin: 28px auto;
   border: 2px solid var(--light);
   box-shadow: 5px 5px 0px var(--light);
@@ -311,14 +323,16 @@ button.active {
 }
 
 .delete-btn,
-.import-btn {
+.import-btn,
+#error-banner button {
   background: transparent;
   border: 1px solid var(--scarlet);
   color: var(--scarlet);
 }
 
 .delete-btn:hover,
-.import-btn:hover {
+.import-btn:hover,
+#error-banner button:hover {
   background: var(--scarlet);
   color: white;
 }

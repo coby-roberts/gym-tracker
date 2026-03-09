@@ -1,7 +1,9 @@
 // Workout Session
 
 export function getWorkouts(db) {
-  const rows = db.prepare(`
+  const rows = db
+    .prepare(
+      `
     SELECT
       s.id AS session_id,
       s.date AS date,
@@ -18,8 +20,9 @@ export function getWorkouts(db) {
       ON ses.gym_session_exercise_id = se.id
     JOIN gym_exercise e
       ON e.id = se.exercise_id
-    ORDER BY s.date`
-  ).all();
+    ORDER BY s.date`,
+    )
+    .all();
   console.log(rows);
 
   const workoutMap = new Map();
@@ -29,8 +32,8 @@ export function getWorkouts(db) {
       workoutMap.set(row.session_id, {
         id: row.session_id,
         date: row.date,
-        exercises: new Map()
-      })
+        exercises: new Map(),
+      });
     }
 
     const session = workoutMap.get(row.session_id);
@@ -40,7 +43,7 @@ export function getWorkouts(db) {
         id: row.session_exercise_id,
         exerciseId: row.exercise_id,
         name: row.exercise_name,
-        sets: []
+        sets: [],
       });
     }
 
@@ -49,13 +52,13 @@ export function getWorkouts(db) {
     exercise.sets.push({
       id: row.session_exercise_set_id,
       weight: row.weight,
-      reps: row.reps
+      reps: row.reps,
     });
   }
 
-  return Array.from(workoutMap.values()).map(session => ({
+  return Array.from(workoutMap.values()).map((session) => ({
     ...session,
-    exercises: Array.from(session.exercises.values())
+    exercises: Array.from(session.exercises.values()),
   }));
 }
 
@@ -64,18 +67,15 @@ export function addWorkout(db, workout) {
 
   const insertSession = db.prepare(`
     INSERT INTO gym_sessions (date) 
-    VALUES (?)`
-  );
+    VALUES (?)`);
 
   const insertSessionExercise = db.prepare(`
     INSERT INTO gym_session_exercises (session_id, exercise_id) 
-    VALUES (?, ?)`
-  );
+    VALUES (?, ?)`);
 
   const insertExerciseSet = db.prepare(`
     INSERT INTO gym_session_sets (gym_session_exercise_id, weight, reps) 
-    VALUES (?, ?, ?)`
-  );
+    VALUES (?, ?, ?)`);
 
   const tx = db.transaction((workout) => {
     const sessionResult = insertSession.run(workout.date);
@@ -83,7 +83,10 @@ export function addWorkout(db, workout) {
 
     for (const exercise of workout.exercises) {
       console.log(exercise);
-      const exerciseResult = insertSessionExercise.run(sessionId, exercise.exerciseId);
+      const exerciseResult = insertSessionExercise.run(
+        sessionId,
+        exercise.exerciseId,
+      );
       const sessionExerciseId = exerciseResult.lastInsertRowid;
 
       for (const set of exercise.sets) {
@@ -108,9 +111,7 @@ export function updateWorkout(db, workout) {
   // const updateSessionExercise = db.prepare();
   // const updateSessionExerciseSet = db.prepare();
   //
-  const tx = db.transaction((workout) => {
-
-  });
+  const tx = db.transaction((workout) => {});
 
   return tx(workout);
 }
@@ -122,8 +123,12 @@ export function deleteWorkout(db, id) {
 // Muscles
 
 export function addMuscle(db, name) {
-  return db.prepare("INSERT INTO gym_muscles (name) VALUES (?)")
+  const result = db
+    .prepare("INSERT INTO gym_muscles (name) VALUES (?)")
     .run(name);
+  return db
+    .prepare("SELECT * FROM gym_muscles WHERE id = ?")
+    .get(result.lastInsertRowid);
 }
 
 export function getMuscles(db) {
@@ -131,7 +136,9 @@ export function getMuscles(db) {
 }
 
 export function updateMuscle(db, name, id) {
-  return db.prepare("UPDATE gym_muscles SET name = ? WHERE id = ?").run(name, id);
+  return db
+    .prepare("UPDATE gym_muscles SET name = ? WHERE id = ?")
+    .run(name, id);
 }
 
 export function deleteMuscle(db, id) {
@@ -141,7 +148,6 @@ export function deleteMuscle(db, id) {
 // Exercise
 
 export function addExercise(db, exerciseName, muscleIds) {
-
   const insertExercise = db.prepare(`
     INSERT INTO gym_exercise (name)
     VALUES (?)
@@ -168,13 +174,25 @@ export function addExercise(db, exerciseName, muscleIds) {
 
 export function updateExercise(db, name, id) {
   try {
-    return db.prepare("UPDATE gym_exercise SET name = ? WHERE id = ?").run(name, id);
+    return db
+      .prepare("UPDATE gym_exercise SET name = ? WHERE id = ?")
+      .run(name, id);
   } catch (error) {
     console.log(error);
   }
 }
 
 export function deleteExercise(db, id) {
+  const sessionRefs = db
+    .prepare("SELECT * FROM gym_session_exercises WHERE exercise_id = ?")
+    .all(id);
+  const muscleRefs = db
+    .prepare("SELECT * FROM gym_exercise_muscles WHERE exercise_id = ?")
+    .all(id);
+
+  console.log("session refs:", sessionRefs);
+  console.log("muscle refs:", muscleRefs);
+
   return db.prepare("DELETE FROM gym_exercise WHERE id = ?").run(id);
 }
 
@@ -183,7 +201,9 @@ export function getExercises(db) {
 }
 
 export function getExercisesAndExerciseMuscles(db) {
-  const rows = db.prepare(`
+  const rows = db
+    .prepare(
+      `
     SELECT
       e.id   AS exercise_id,
       e.name AS exercise_name,
@@ -195,7 +215,9 @@ export function getExercisesAndExerciseMuscles(db) {
     LEFT JOIN gym_muscles m
       ON m.id = em.muscle_id
     ORDER BY e.name
-  `).all();
+  `,
+    )
+    .all();
 
   const exercisesMap = new Map();
 
@@ -204,13 +226,13 @@ export function getExercisesAndExerciseMuscles(db) {
       exercisesMap.set(row.exercise_id, {
         id: row.exercise_id,
         name: row.exercise_name,
-        muscles: []
+        muscles: [],
       });
     }
     if (row.muscle_id != null) {
       exercisesMap.get(row.exercise_id).muscles.push({
         id: row.muscle_id,
-        name: row.muscle_name
+        name: row.muscle_name,
       });
     }
   }
@@ -221,12 +243,88 @@ export function getExercisesAndExerciseMuscles(db) {
 // gym_exercise_muscles
 export function addExerciseMuscle(db, exerciseId, muscleId) {
   return db
-    .prepare("INSERT OR IGNORE INTO gym_exercise_muscles (exercise_id, muscle_id) VALUES (?, ?)")
+    .prepare(
+      "INSERT OR IGNORE INTO gym_exercise_muscles (exercise_id, muscle_id) VALUES (?, ?)",
+    )
     .run(exerciseId, muscleId);
 }
 
 export function deleteExerciseMuscle(db, exerciseId, muscleId) {
   return db
-    .prepare("DELETE FROM gym_exercise_muscles WHERE exercise_id = ? AND muscle_id = ?")
+    .prepare(
+      "DELETE FROM gym_exercise_muscles WHERE exercise_id = ? AND muscle_id = ?",
+    )
     .run(exerciseId, muscleId);
+}
+
+// Export
+export function exportData(db) {
+  const exercises = db.prepare("SELECT * FROM gym_exercise").all();
+  const muscles = db.prepare("SELECT * FROM gym_muscles").all();
+  const exerciseMuscles = db
+    .prepare("SELECT * FROM gym_exercise_muscles")
+    .all();
+  const sessions = db.prepare("SELECT * FROM gym_sessions").all();
+  const sessionExercises = db
+    .prepare("SELECT * FROM gym_session_exercises")
+    .all();
+  const sessionSets = db.prepare("SELECT * FROM gym_session_sets").all();
+
+  return {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    exercises,
+    muscles,
+    exerciseMuscles,
+    sessions,
+    sessionExercises,
+    sessionSets,
+  };
+}
+
+// Import
+export function importData(db, data) {
+  const execute = db.transaction((data) => {
+    db.prepare("DELETE FROM gym_session_sets").run();
+    db.prepare("DELETE FROM gym_session_exercises").run();
+    db.prepare("DELETE FROM gym_sessions").run();
+    db.prepare("DELETE FROM gym_exercise_muscles").run();
+    db.prepare("DELETE FROM gym_exercise").run();
+    db.prepare("DELETE FROM gym_muscles").run();
+
+    for (const m of data.muscles)
+      db.prepare("INSERT INTO gym_muscles (id, name) VALUES (?, ?)").run(
+        m.id,
+        m.name,
+      );
+
+    for (const e of data.exercises)
+      db.prepare("INSERT INTO gym_exercise (id, name) VALUES (?, ?)").run(
+        e.id,
+        e.name,
+      );
+
+    for (const em of data.exerciseMuscles)
+      db.prepare(
+        "INSERT INTO gym_exercise_muscles (exercise_id, muscle_id) VALUES (?, ?)",
+      ).run(em.exercise_id, em.muscle_id);
+
+    for (const s of data.sessions)
+      db.prepare("INSERT INTO gym_sessions (id, date) VALUES (?, ?)").run(
+        s.id,
+        s.date,
+      );
+
+    for (const se of data.sessionExercises)
+      db.prepare(
+        "INSERT INTO gym_session_exercises (id, session_id, exercise_id) VALUES (?, ?, ?)",
+      ).run(se.id, se.session_id, se.exercise_id);
+
+    for (const ss of data.sessionSets)
+      db.prepare(
+        "INSERT INTO gym_session_sets (id, gym_session_exercise_id, weight, reps) VALUES (?, ?, ?, ?)",
+      ).run(ss.id, ss.gym_session_exercise_id, ss.weight, ss.reps);
+  });
+
+  execute(data);
 }

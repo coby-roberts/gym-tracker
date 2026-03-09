@@ -28,6 +28,9 @@ export function gymIpc() {
   // Muscles
 
   ipcMain.handle("gym:addMuscle", (event, name) => {
+    if (!name || typeof name !== "string" || !name.trim()) {
+      return { error: "Invalid muscle name" };
+    }
     const db = getDb();
     const muscleName = String(name);
     return GymQueries.addMuscle(db, muscleName);
@@ -39,18 +42,44 @@ export function gymIpc() {
   });
 
   ipcMain.handle("gym:updateMuscle", (event, name, id) => {
-    const db = getDb();
-    return GymQueries.updateMuscle(db, name, id);
+    try {
+      const db = getDb();
+      return GymQueries.updateMuscle(db, name, id);
+    } catch (err) {
+      return { error: err.message };
+    }
   });
 
   ipcMain.handle("gym:deleteMuscle", (event, id) => {
-    const db = getDb();
-    return GymQueries.deleteMuscle(db, id);
+    try {
+      const db = getDb();
+      return GymQueries.deleteMuscle(db, id);
+    } catch (err) {
+      if (err.code === "SQLITE_CONSTRAINT_FOREIGNKEY") {
+        return {
+          error: "Cannot delete muscle - it is being used by an exercise",
+        };
+      }
+      return { error: err.message };
+    }
   });
 
   // Exercises
 
   ipcMain.handle("gym:addExercise", (event, exerciseName, muscleIds) => {
+    if (
+      !exerciseName ||
+      typeof exerciseName !== "string" ||
+      !exerciseName.trim()
+    ) {
+      return { error: "Invalid exercise name" };
+    }
+    if (!muscleIds || !Array.isArray(muscleIds) || muscleIds.length === 0) {
+      return { error: "At least one muscle is required" };
+    }
+    if (muscleIds.some((id) => !id || isNaN(id))) {
+      return { error: "Invalid muscle id" };
+    }
     const db = getDb();
     return GymQueries.addExercise(db, exerciseName, muscleIds);
   });

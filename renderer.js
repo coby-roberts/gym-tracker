@@ -1,25 +1,19 @@
-// import { initExerciseUI } from "./apps/Gym/ui/exercise.js";
-// import { initMuscleUI } from "./apps/Gym/ui/muscles.js";
-// import { initWorkoutUI } from "./apps/Gym/ui/workout.js";
-//
-// import { initGymUI } from "./apps/Gym/gym.ui.js";
-//
 const content = document.getElementById("gym-content");
+const { initGlobalUI, initGymUI } = await import("./apps/Gym/gym.ui.js");
 
 async function loadPage(page) {
   try {
     const res = await fetch(page);
     if (!res.ok) throw new Error(`Could not load ${page}`);
-
     content.innerHTML = await res.text();
-
-    const { initGymUI } = await import("./apps/Gym/gym.ui.js");
     initGymUI(page);
     updateActiveNav(page);
   } catch (err) {
     console.error("Navigation error: ", err);
   }
 }
+
+window.loadPage = loadPage;
 
 function updateActiveNav(activePage) {
   document.querySelectorAll(".main-nav button").forEach((btn) => {
@@ -36,3 +30,4 @@ document.querySelectorAll(".main-nav button").forEach((btn) => {
 // Default landing page
 loadPage("apps/Gym/pages/stats.html");
 updateActiveNav("apps/Gym/pages/stats.html");
+initGlobalUI();

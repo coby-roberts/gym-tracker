@@ -40,7 +40,9 @@ contextBridge.exposeInMainWorld("gym", {
   deleteWorkout: (id) => ipcRenderer.invoke("gym:deleteWorkout", id),
 
   // gym exercise muscles
-  addExerciseMuscle: (exerciseId, muscleId) => ipcRenderer.invoke("gym:addExerciseMuscle", exerciseId, muscleId),
+  addExerciseMuscle: (exerciseId, muscleId) =>
+    ipcRenderer.invoke("gym:addExerciseMuscle", exerciseId, muscleId),
 
-  deleteExerciseMuscle: (exerciseId, muscleId) => ipcRenderer.invoke("gym:deleteExerciseMuscle", exerciseId, muscleId),
+  deleteExerciseMuscle: (exerciseId, muscleId) =>
+    ipcRenderer.invoke("gym:deleteExerciseMuscle", exerciseId, muscleId),
 });

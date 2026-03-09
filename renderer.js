@@ -1,29 +1,38 @@
-const content = document.getElementById("content");
+// import { initExerciseUI } from "./apps/Gym/ui/exercise.js";
+// import { initMuscleUI } from "./apps/Gym/ui/muscles.js";
+// import { initWorkoutUI } from "./apps/Gym/ui/workout.js";
+//
+// import { initGymUI } from "./apps/Gym/gym.ui.js";
+//
+const content = document.getElementById("gym-content");
 
-async function loadPage(page, app) {
+async function loadPage(page) {
+  try {
+    const res = await fetch(page);
+    if (!res.ok) throw new Error(`Could not load ${page}`);
 
-  const res = await fetch(page);
-  content.innerHTML = await res.text();
-
-  if (app === "gym") {
+    content.innerHTML = await res.text();
 
     const { initGymUI } = await import("./apps/Gym/gym.ui.js");
-    initGymUI();
-
-  } else if (app === "movies") {
-    const movies = await import("./apps/Movies/movies.js");
-    movies.initMovies();
-
-  } else if (app === "music") {
-    const music = await import("./apps/Music/music.js");
-    music.initMusic();
+    initGymUI(page);
+    updateActiveNav(page);
+  } catch (err) {
+    console.error("Navigation error: ", err);
   }
 }
 
-document.querySelectorAll(".main-nav button").forEach(btn => {
+function updateActiveNav(activePage) {
+  document.querySelectorAll(".main-nav button").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.page === activePage);
+  });
+}
+
+document.querySelectorAll(".main-nav button").forEach((btn) => {
   btn.addEventListener("click", () => {
     loadPage(btn.dataset.page, btn.dataset.app);
   });
 });
 
-loadPage("apps/Home/home.html", "home");
+// Default landing page
+loadPage("apps/Gym/pages/stats.html");
+updateActiveNav("apps/Gym/pages/stats.html");

@@ -7,26 +7,6 @@ export function initExerciseUI() {
   populateExercises();
 }
 
-// export function unmountExercise() {
-//   const form = document.getElementById("add-exercise-form");
-//   if (form) {
-//     form.removeEventListener("submit", formSubmitHandler);
-//   }
-//   const addMuscleBtn = document.getElementById("add-muscle");
-//   const removeMuscleBtn = document.getElementById("remove-muscle");
-//
-//   if (addMuscleBtn) {
-//     addMuscleBtn.removeEventListener("click", addMuscle);
-//   }
-//   if (removeMuscleBtn) {
-//     removeMuscleBtn.removeEventListener("click", removeMuscle);
-//   }
-//   const musclesDiv = document.getElementById("muscles");
-//   if (musclesDiv) {
-//     musclesDiv.innerHTML = '';
-//   }
-// }
-
 // populate the select with muscles
 async function populateMuscleSelect(select) {
   select.innerHTML = "";
@@ -289,7 +269,7 @@ async function populateExercises() {
 
     const buttons = document.createElement("div");
     buttons.className = "buttons";
-    buttons.append(editBtn, deleteBtn);
+    buttons.append(deleteBtn, editBtn);
 
     card.append(left, buttons);
     container.appendChild(card);

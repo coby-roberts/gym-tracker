@@ -10,9 +10,8 @@ function populateMuscles() {
 
   musclesDiv.innerHTML = "";
 
-  window.gym.getMuscles().then(muscles => {
-
-    muscles.forEach(muscle => {
+  window.gym.getMuscles().then((muscles) => {
+    muscles.forEach((muscle) => {
       const row = document.createElement("div");
       row.className = "muscle-card";
 
@@ -44,20 +43,18 @@ function populateMuscles() {
       deleteBtn.innerText = "Delete";
       deleteBtn.className = "delete-btn";
       deleteBtn.onclick = () => {
-        window.gym.deleteMuscle(muscle.id)
-          .then(() => row.remove());
+        window.gym.deleteMuscle(muscle.id).then(() => row.remove());
       };
 
       const buttons = document.createElement("div");
       buttons.className = "buttons";
 
-      buttons.append(editBtn, deleteBtn);
+      buttons.append(deleteBtn, editBtn);
       row.append(p, buttons);
       musclesDiv.appendChild(row);
     });
   });
 }
-
 
 // Handle submit of addMuscle form
 function attachAddMuscleForm() {
@@ -79,7 +76,6 @@ function attachAddMuscleForm() {
     form.reset();
   });
 }
-
 
 // <div id="db-muscles">
 //  <div class="muslce-card">

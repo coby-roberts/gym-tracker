@@ -1,57 +1,57 @@
 <!doctype html>
 <html>
-    <head>
-        <meta charset="UTF-8" />
-        <meta
-            http-equiv="Content-Security-Policy"
-            content="default-src 'self'; script-src 'self'"
-        />
-        <meta
-            http-equiv="X-Content-Security-Policy"
-            content="default-src 'self'; script-src 'self'"
-        />
-        <title>My Life App</title>
-        <link rel="stylesheet" href="styles.css" />
-    </head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    />
+    <meta
+      http-equiv="X-Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    />
+    <title>My Life App</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
 
-    <body>
-        <nav class="main-nav">
-            <button
-                type="button"
-                class=""
-                data-page="./apps/Home/home.html"
-                data-app="home"
-            >
-                Home
-            </button>
-            <button
-                type="button"
-                class=""
-                data-page="./apps/Gym/gym.html"
-                data-app="gym"
-            >
-                Gym
-            </button>
-            <button
-                type="button"
-                class=""
-                data-page="./apps/Music/music.html"
-                data-app="music"
-            >
-                Music
-            </button>
-            <button
-                type="button"
-                class=""
-                data-page="./apps/Movies/movies.html"
-                data-app="movies"
-            >
-                Movies
-            </button>
-        </nav>
+  <body>
+    <div class="heading-container">
+      <h1 class="space-heading">Gym Tracker</h1>
+    </div>
+    <nav class="main-nav">
+      <button
+        class="active"
+        type="button"
+        data-page="./apps/Gym/pages/stats.html"
+        data-app="stats"
+      >
+        Stats
+      </button>
+      <button
+        type="button"
+        data-page="./apps/Gym/pages/addWorkout.html"
+        data-app="add-workout"
+      >
+        Add Workout
+      </button>
+      <button
+        type="button"
+        data-page="./apps/Gym/pages/addExercise.html"
+        data-app="add-exercise"
+      >
+        Add Exercise
+      </button>
+      <button
+        type="button"
+        data-page="./apps/Gym/pages/addMuscle.html"
+        data-app="add-muscle"
+      >
+        Add Muscle
+      </button>
+    </nav>
 
-        <main id="content"></main>
-    </body>
+    <main id="gym-content" class="gym-content"></main>
+  </body>
 
-    <script src="renderer.js"></script>
+  <script type="module" src="renderer.js"></script>
 </html>

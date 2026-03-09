@@ -1,22 +1,31 @@
 <form id="add-exercise-form" class="gym-form">
   <h2>Add Exercise</h2>
-  <span class="input-row"><label>Exercise Name <input name="exerciseName" type="text"></label></span>
-  <br>
+  <span class="input-row"
+    ><label>Exercise Name <input name="exerciseName" type="text" /></label
+  ></span>
+  <br />
   <h3>Muscle Groups</h3>
   <div id="muscles" class="">
     <!-- <div id="muscle-div-1"></div> -->
   </div>
   <div class="buttons">
-    <button id="remove-muscle" class="remove-btn" type="button">Remove Muscle</button>
+    <button id="remove-muscle" class="remove-btn" type="button">
+      Remove Muscle
+    </button>
     <button id="add-muscle" class="add-btn" type="button">Add Muscle</button>
   </div>
-  <br>
+  <br />
   <div class="submit-btn-container">
     <button class="submit-btn">Submit</button>
   </div>
 </form>
 <div class="gym-list">
-  <h2>Exercises</h2>
+  <div class="db-header">
+    <h2>Exercises</h2>
+    <div class="buttons">
+      <button type="button" class="import-btn">import</button>
+      <button type="button" class="export-btn">export</button>
+    </div>
+  </div>
   <div id="db-exercises"></div>
 </div>
-

@@ -2,7 +2,7 @@
 // addWorkout.html
 //
 
-//TODO: the workout form doesnt reset after submitting the form. 
+//TODO: the workout form doesnt reset after submitting the form.
 //      After pressing submit the page should also fetch the new row.
 //      The excersise count also needs to be reset whenever exiting the page.
 
@@ -19,7 +19,7 @@ export function closeWorkoutUI() {
 }
 
 function getExerciseCount() {
-  const exercises = document.getElementById('exercises');
+  const exercises = document.getElementById("exercises");
   return exercises.childElementCount;
 }
 
@@ -43,7 +43,8 @@ function attachWorkoutHandlers() {
 }
 
 function detatchWorkoutHandlers() {
-  document.getElementById("add-exercise")
+  document
+    .getElementById("add-exercise")
     .removeEventListener("click", handleAddExercise);
 
   document
@@ -86,7 +87,6 @@ function detachWorkoutDelegation() {
 }
 
 function removeLastExercise() {
-
   const exercisesContainer = document.getElementById("exercises");
   const lastExercise = exercisesContainer.lastElementChild;
 
@@ -97,7 +97,6 @@ function removeLastExercise() {
 
 // Add an exercise to the workout form
 async function addExercise(exerciseCount) {
-
   const exerciseDiv = document.createElement("div");
   exerciseDiv.className = "exercise";
   exerciseDiv.id = `exercise-div-${exerciseCount}`;
@@ -130,7 +129,7 @@ async function addExercise(exerciseCount) {
   removeSetBtn.textContent = "Remove Set";
   removeSetBtn.type = "button";
   // removeSetBtn.dataset.exercise = exerciseCount;
-  removeSetBtn.addEventListener('click', () => removeSet(setsDiv));
+  removeSetBtn.addEventListener("click", () => removeSet(setsDiv));
 
   const topExerciseRow = document.createElement("div");
   topExerciseRow.className = "exercise-select-div";
@@ -144,9 +143,7 @@ async function addExercise(exerciseCount) {
   document.getElementById("exercises").appendChild(exerciseDiv);
 }
 
-
 function addSet(parent, exerciseId) {
-
   const setIndex = getSetCount(exerciseId) + 1;
 
   const setDiv = document.createElement("div");
@@ -164,10 +161,8 @@ function removeSet(parent) {
   parent.lastElementChild?.remove();
 }
 
-
 // populate the select with muscles
 function populateExerciseSelect(select, exercises) {
-
   const placeholder = document.createElement("option");
   placeholder.value = "";
   placeholder.textContent = "Select Exercise";
@@ -175,7 +170,7 @@ function populateExerciseSelect(select, exercises) {
   placeholder.selected = true;
   select.appendChild(placeholder);
 
-  exercises.forEach(exercise => {
+  exercises.forEach((exercise) => {
     const option = document.createElement("option");
     option.value = exercise.id;
     option.textContent = exercise.name;
@@ -192,25 +187,25 @@ function attachAddWorkoutForm() {
 
     const workout = {
       date: new FormData(form).get("date"),
-      exercises: []
+      exercises: [],
     };
 
     const exerciseDivs = document.querySelectorAll("[id^='exercise-']");
 
-    exerciseDivs.forEach(exerciseDiv => {
+    exerciseDivs.forEach((exerciseDiv) => {
       const exerciseId = exerciseDiv.querySelector("select").value;
       if (!exerciseId) return;
 
       const sets = [];
 
-      exerciseDiv.querySelectorAll(".set").forEach(setDiv => {
+      exerciseDiv.querySelectorAll(".set").forEach((setDiv) => {
         const weight = setDiv.querySelector("input[name^='weight']").value;
         const reps = setDiv.querySelector("input[name^='reps']").value;
 
         if (weight && reps) {
           sets.push({
             weight: Number(weight),
-            reps: Number(reps)
+            reps: Number(reps),
           });
         }
       });
@@ -218,10 +213,10 @@ function attachAddWorkoutForm() {
       if (sets.length) {
         workout.exercises.push({
           exerciseId: Number(exerciseId),
-          sets
+          sets,
         });
       }
-    })
+    });
 
     console.log(workout);
 
@@ -230,7 +225,6 @@ function attachAddWorkoutForm() {
     form.reset();
   });
 }
-
 
 //TODO: update this from exercise to workouts
 
@@ -286,12 +280,12 @@ function attachAddWorkoutForm() {
 //   }
 // }
 
-function createSetRow() {
+function createSetRow(set) {
   const setRepWeight = document.createElement("p");
   setRepWeight.innerText = `${set.reps} x ${set.weight}`;
 
   const setDiv = document.createElement("div");
-  setDiv.className = "set"
+  setDiv.className = "set";
 
   setDiv.appendChild(setRepWeight);
   return setDiv;
@@ -317,13 +311,12 @@ async function populateWorkouts() {
     workoutDate.contentEditable = false;
 
     const left = document.createElement("div");
-    left.className = "left"
+    left.className = "left";
 
     const exercises = document.createElement("div");
     exercises.className = "exercises";
 
-
-    row.exercises.forEach(exercise => {
+    row.exercises.forEach((exercise) => {
       const exerciseDiv = document.createElement("div");
       exerciseDiv.className = "exercise";
 
@@ -334,9 +327,7 @@ async function populateWorkouts() {
       exerciseName.value = exercise.id;
       exerciseName.innerText = exercise.name;
 
-      exercise.sets.forEach(set =>
-        sets.appendChild(createSetRow(set))
-      );
+      exercise.sets.forEach((set) => sets.appendChild(createSetRow(set)));
 
       exerciseDiv.append(exerciseName, sets);
       exercises.appendChild(exerciseDiv);
@@ -363,8 +354,7 @@ async function populateWorkouts() {
     deleteBtn.innerText = "Delete";
 
     deleteBtn.onclick = () => {
-      window.gym.deleteWorkout(row.id)
-        .then(() => workout.remove());
+      window.gym.deleteWorkout(row.id).then(() => workout.remove());
     };
 
     const buttons = document.createElement("buttons");
@@ -373,5 +363,5 @@ async function populateWorkouts() {
 
     workout.append(left, buttons);
     container.appendChild(workout);
-  };
+  }
 }

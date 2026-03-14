@@ -6,6 +6,14 @@ contextBridge.exposeInMainWorld("versions", {
   electron: () => process.versions.electron,
 });
 
+contextBridge.exposeInMainWorld("dialog", {
+  openJSON: (options) => ipcRenderer.invoke("dialog:openJSON", options),
+});
+
+contextBridge.exposeInMainWorld("file", {
+  readJSON: (path) => ipcRenderer.invoke("file:readJSON", path),
+});
+
 contextBridge.exposeInMainWorld("gym", {
   // muscles
   addMuscle: (name) => ipcRenderer.invoke("gym:addMuscle", name),

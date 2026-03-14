@@ -1,4 +1,4 @@
-import { ipcMain } from "electron";
+import { ipcMain, dialog } from "electron";
 import * as GymQueries from "./db/queries.js";
 import { getDb } from "../../database.js";
 
@@ -114,6 +114,28 @@ export function gymIpc() {
   ipcMain.handle("gym:deleteExerciseMuscle", (event, exerciseId, muscleId) => {
     const db = getDb();
     return GymQueries.deleteExerciseMuscle(db, exerciseId, muscleId);
+  });
+
+  // Gym Import Export
+
+  ipcMain.handle("dialog:openJSON", async (event, options) => {
+    console.log("clicked");
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ["openFile"],
+      filters: [
+        { name: "JSON Files", extensions: ["json"] },
+        { name: "All Files", extensions: "*" },
+      ],
+    });
+    if (canceled) return null;
+    return filePaths[0];
+  });
+
+  ipcMain.handle("file:readJSON", async (event, filePath) => {
+    const raw = await fs.readFile(filePath, "utf-8");
+    const json = JSON.parse(raw);
+    console.log("gym.ipc.js readJSON: ", json);
+    return json;
   });
 
   return { success: true };

@@ -33,7 +33,19 @@ function attachMuscleHandlers() {
   if (createMuscleBtn) {
     createMuscleBtn.addEventListener("click", createMuscle);
   }
+
+  document.getElementById("import-btn").addEventListener("click", handleImport);
+  document.getElementById("export-btn").addEventListener("click", handleExport);
 }
+
+async function handleImport() {
+  const filePath = await window.dialog.openJSON();
+  if (filePath) {
+    console.log(filePath);
+  }
+}
+
+async function handleExport() {}
 
 function getMuscleCount() {
   const count = document.getElementById("muscles");
